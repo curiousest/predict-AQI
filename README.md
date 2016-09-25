@@ -1,1 +1,1 @@
-# predict-pollution
+# predict-AQI

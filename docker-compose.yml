@@ -1,0 +1,19 @@
+notebook:
+  build: .
+  volumes:
+    - /home/douglas/workspace/notebooks:/home/jovyan/work
+  ports:
+    - "8888:8888"
+  command: start-notebook.sh
+
+postgis:
+  image: mdillon/postgis
+  ports:
+    - "5432:5432"
+  volumes:
+    - ./postgis:/var/lib/postgresql
+  environment:
+    POSTGRES_PASSWORD: password
+    POSTGRES_USER: user
+    POSTGRES_DB: AQI
+  privileged: true
