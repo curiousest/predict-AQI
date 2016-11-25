@@ -1,35 +1,9 @@
 # predict-AQI
 
-If you ever have to do a docker volume on external HD, have an nfts partition mounted like this. exfat doesn't allow chmod/chown commands to be run, so you can't use some containers if not nfts:
-http://askubuntu.com/questions/11840/how-do-i-use-chmod-on-an-ntfs-or-fat32-partition
+## Project Proposal
 
-```
-For NTFS partitions, use the permissions option in fstab.
+AQI is an integer measurement of air pollution. This project is to make an AQI prediction in the near future, given past AQI measurements of nearby locations. The project aims to predict:
 
-First unmount the ntfs partition.
+For a given city at a given point in time, what will the air pollution be for the next 24 hours?
 
-Identify your partition UUID with blkid
-
-sudo blkid
-Then edit /etc/fstab
-
-# Graphical 
-gksu gedit /etc/fstab
-
-# Command line
-sudo -e /etc/fstab
-And add or edit a line for the ntfs partition
-
-    # change the "UUID" to your partition UUID
-    UUID=12102C02102CEB83 /media/windows ntfs-3g auto,users,permissions 0 0
-Make a mount point (if needed)
-
-sudo mkdir /media/windows
-Now mount the partition
-
-mount /media/windows
-The options I gave you, auto, will automatically mount the partition when you boot and users allows users to mount and umount .
-
-You can then use chown and chmod on the ntfs partition.
-```
-
+[Detailed proposal](./proposal.md)
