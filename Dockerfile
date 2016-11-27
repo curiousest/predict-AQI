@@ -8,3 +8,4 @@ RUN conda install --quiet --yes psycopg2
 USER $NB_USER
 
 RUN pip3 install psycopg2
+RUN conda install --quiet --yes scikit-learn=0.18*
