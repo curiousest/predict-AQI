@@ -58,3 +58,32 @@ def get_denormalized_aqi(normalized_aqi):
         return round(normalized_aqi * 300)
     except Exception:
         return 0
+
+
+def shift_and_save_column(df, source_col_name, dest_col_name, shift=1):
+    df[dest_col_name] = getattr(df, source_col_name).shift(shift)
+
+
+def shift_inputs_backwards(x_all, shift_count, source_column_name, column_string_to_format='{}_ago'):
+    '''
+    Returns x_all dataframe with `shift_count` new columns shifting the source column backwards one row for each new
+    column.
+    '''
+    feature_columns = []
+    shift_and_save_column(x_all, source_column_name, column_string_to_format.format('0'))
+    feature_columns.append(column_string_to_format.format('0'))
+
+    for i in range(1, shift_count):
+        prev_feature_column = column_string_to_format.format(str(i))
+        feature_column = column_string_to_format.format(str(i + 1))
+        feature_columns.append(feature_column)
+        shift_and_save_column(x_all, prev_feature_column, feature_column)
+    return x_all, feature_columns
+
+
+def shift_outputs_forwards(y_all, shift_count, source_column_name, column_string_to_format='{}_ahead'):
+    shift_and_save_column(y_all, source_column_name, column_string_to_format.format('1'), shift=-1)
+    for i in range(2, shift_count + 1):
+        prev_input_column = column_string_to_format.format(str(i - 1))
+        output_column = column_string_to_format.format(str(i))
+        shift_and_save_column(y_all, prev_input_column, output_column, shift=-1)
