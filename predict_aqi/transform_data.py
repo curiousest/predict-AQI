@@ -67,7 +67,7 @@ def shift_and_save_column(df, source_col_name, dest_col_name, shift=1):
 def shift_inputs_backwards(x_all, shift_count, source_column_name, column_string_to_format='{}_ago'):
     '''
     Returns x_all dataframe with `shift_count` new columns shifting the source column backwards one row for each new
-    column.
+    column and returns the column names.
     '''
     feature_columns = []
     shift_and_save_column(x_all, source_column_name, column_string_to_format.format('0'))
@@ -83,7 +83,11 @@ def shift_inputs_backwards(x_all, shift_count, source_column_name, column_string
 
 def shift_outputs_forwards(y_all, shift_count, source_column_name, column_string_to_format='{}_ahead'):
     shift_and_save_column(y_all, source_column_name, column_string_to_format.format('1'), shift=-1)
+    output_columns = [column_string_to_format.format('1')]
     for i in range(2, shift_count + 1):
         prev_input_column = column_string_to_format.format(str(i - 1))
         output_column = column_string_to_format.format(str(i))
+        output_columns.append(output_column)
         shift_and_save_column(y_all, prev_input_column, output_column, shift=-1)
+    return y_all, output_columns
+

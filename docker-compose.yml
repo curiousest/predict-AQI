@@ -1,7 +1,7 @@
 notebook:
   build: .
   volumes:
-    - ./notebooks:/home/jovyan/work
+    - ./predict_aqi:/home/jovyan/work/predict_aqi
   ports:
     - "8888:8888"
   command: start-notebook.sh

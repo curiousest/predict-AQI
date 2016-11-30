@@ -16,6 +16,10 @@ Base.prepare()
 AirLocation, AirMeasurement = Base.classes.locs_airlocation, Base.classes.locs_airmeasurement
 
 
+def get_db_session():
+    return session
+
+
 def load_air_location_data(airlocation_id):
     '''
     Return the air location data object for id `airlocation_id`
