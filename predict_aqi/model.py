@@ -22,10 +22,11 @@ def generate_predictions(all_data,
                          indices_ahead_to_predict,
                          ):
 
+    print("Step 1")
     first_step_data, first_step_feature_columns, first_step_output_columns = first_step_format_inputs_outputs_function(
         all_data
     )
-    x_train, x_test, y_train, y_test = first_step_split_function(
+    x_train, y_train, x_test, y_test = first_step_split_function(
         first_step_data, first_step_feature_columns, first_step_output_columns
     )
     train_regressor(first_step_regressor, x_train, y_train)
@@ -37,10 +38,13 @@ def generate_predictions(all_data,
     first_step_predictions_df.columns = prediction_columns
     all_data = all_data.join(first_step_predictions_df)
 
+    print("Step 2")
     # Second step of model is to make predictions combining recent AQI predictions with time inputs
-    generate_time_inputs(source_df=all_data, dest_df=all_data)
-    second_step_data, second_step_feature_columns = second_step_format_inputs_outputs_function(all_data)
-    x_train, x_test, y_train, y_test = second_step_split_function(second_step_data)
+    second_step_data, second_step_feature_columns, second_step_output_columns = \
+        second_step_format_inputs_outputs_function(all_data)
+    x_train, y_train, x_test, y_test = second_step_split_function(
+        second_step_data, second_step_feature_columns, second_step_output_columns
+    )
     train_regressor(second_step_regressor, x_train, y_train)
 
     # Make the second step predictions and merge them into the all_data dataframe
@@ -88,7 +92,7 @@ def generate_outputs(measurements, indices_ahead_to_predict, AQI_column, output_
     for index in indices_ahead_to_predict:
         output_column = output_column_format.format(str(index))
         output_columns.append(output_column)
-        shift_and_save_column(measurements, AQI_column, output_column, shift=index)
+        shift_and_save_column(measurements, AQI_column, output_column, shift=-index)
     return measurements, output_columns
 
 
@@ -101,7 +105,7 @@ def generate_inputs_for_recent_AQI(measurements, indices_behind_to_use, AQI_colu
     for index in indices_behind_to_use:
         input_column = input_column_format.format(str(index))
         input_columns.append(input_column)
-        shift_and_save_column(measurements, AQI_column, input_column, shift=-index)
+        shift_and_save_column(measurements, AQI_column, input_column, shift=index)
     return measurements, input_columns
 
 

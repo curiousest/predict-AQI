@@ -37,12 +37,15 @@ def get_normalized_time_inputs(dt):
     ))
 
 
-def generate_time_inputs(source_df, dest_df):
-    dest_df['minute_of_day_sin'], dest_df['minute_of_day_cos'], \
-    dest_df['day_of_year_sin'], dest_df['day_of_year_cos'], \
-    dest_df['day_of_week_sin'], dest_df['day_of_week_cos'], \
-    dest_df['day_of_month_sin'], dest_df['day_of_month_cos'] = \
-        zip(*source_df["measurement_datetime"].map(get_normalized_time_inputs))
+def generate_time_inputs(df):
+    df['minute_of_day_sin'], df['minute_of_day_cos'], \
+    df['day_of_year_sin'], df['day_of_year_cos'], \
+    df['day_of_week_sin'], df['day_of_week_cos'], \
+    df['day_of_month_sin'], df['day_of_month_cos'] = \
+        zip(*df["measurement_datetime"].map(get_normalized_time_inputs))
+    time_columns = ['minute_of_day_sin', 'minute_of_day_cos', 'day_of_year_cos', 'day_of_year_sin', 'day_of_week_cos',
+               'day_of_week_sin', 'day_of_month_sin', 'day_of_month_cos']
+    return df, time_columns
 
 
 def get_normalized_aqi(aqi):
