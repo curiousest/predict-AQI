@@ -4,20 +4,28 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from predict_aqi import config
 
 
-def train_regressor(regressor, x_train, y_train):
-    print("Training {}...".format(regressor.__class__.__name__))
-    start = time.time()
+def train_regressor(regressor, x_train, y_train, print_progress=True):
+    if print_progress:
+        print("Training {}...".format(regressor.__class__.__name__))
+        start = time.time()
+
     regressor.fit(x_train, y_train)
-    end = time.time()
-    print("Done!\nTraining time (secs): {:.3f}".format(end - start))
+
+    if print_progress:
+        end = time.time()
+        print("Done!\nTraining time (secs): {:.3f}".format(end - start))
 
 
-def predict_values(regressor, features):
-    print("Predicting values using {}...".format(regressor.__class__.__name__))
-    start = time.time()
+def predict_values(regressor, features, print_progress=True):
+    if print_progress:
+        print("Predicting values using {}...".format(regressor.__class__.__name__))
+        start = time.time()
+
     y_pred = regressor.predict(features)
-    end = time.time()
-    print("Done!\nPrediction time (secs): {:.3f}".format(end - start))
+
+    if print_progress:
+        end = time.time()
+        print("Done!\nPrediction time (secs): {:.3f}".format(end - start))
     return y_pred
 
 
