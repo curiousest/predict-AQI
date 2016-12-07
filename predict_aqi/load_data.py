@@ -42,11 +42,34 @@ def load_measurement_data(airlocation_id):
     return pd.read_sql(s, engine)
 
 
-def load_nearby_location_measurement_data(airlocation_id, distance_km, max_cities=10):
+def wkt_string_to_lat_lon(wkt_string):
+    return [float(x) for x in wkt_string.split('(')[1].split(')')[0].split(' ')]
+
+
+def load_nearby_location_measurement_data(airlocation_id, distance_km):
     '''
     Return a list of dataframes of location air quality measurement data within `distance_km` of location with id
     `airlocation_id`
     '''
-    pass
+    airlocation_wkt_string = execute_raw_sql(
+        "SELECT ST_ASEWkt(coordinates) from locs_airlocation "
+        "WHERE id={}".format(airlocation_id)
+    ).scalar()
+    lon, lat = wkt_string_to_lat_lon(airlocation_wkt_string)
+    lat_lon_point_string = "(ST_MakePoint({}, {}))".format(lon, lat)
+    coordinate_point_string = "ST_Point(ST_X(ST_Centroid(coordinates)), ST_Y(ST_Centroid(coordinates)))"
+    location_data = execute_raw_sql(
+        "SELECT id, ST_Distance({coordinate_point_string}, {lat_lon_point_string}) FROM locs_airlocation "
+        "WHERE GeometryType(ST_Centroid(coordinates)) = 'POINT' AND "
+        "ST_Distance_Sphere({coordinate_point_string}, {lat_lon_point_string}) "
+        "<= {distance_km} * 2589.981673".format(
+            **locals()
+        )
+    )
+    return sorted(list(location_data), key=lambda a: a[1])
+
+
+def execute_raw_sql(sql_string):
+    return session.execute(sql_string)
 
 
