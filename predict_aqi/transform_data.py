@@ -1,5 +1,8 @@
 import math
 import itertools
+import numpy as np
+from operator import itemgetter
+
 from predict_aqi import config
 
 
@@ -98,3 +101,55 @@ def shift_outputs_forwards(y_all, shift_count, source_column_name, column_string
 def clean_data(df, input_columns):
     df['all_input_equal'] = df[input_columns].apply(lambda x: len(set(x)) < 3, axis=1)
     return df[df['all_input_equal'] == False]
+
+
+def row_has_same_time(row, number_of_cities):
+    '''
+    Returns whether the row has all times within 10 minutes of the base city
+    '''
+    ten_minutes = 60 * 10 * 10**9
+    for city_number in range(2, number_of_cities + 1):
+        diff = abs(
+            row['city_1_measurement_datetime'].value -
+            row['city_{}_measurement_datetime'.format(city_number)].value
+        )
+        if diff > ten_minutes:
+            return False
+    return True
+
+
+def get_city_with_smallest_time(row, number_of_cities):
+    row_names = ['city_{}_measurement_datetime'.format(i)
+                 for i in range(1, number_of_cities + 1)]
+    return min(enumerate(row[row_names]), key=itemgetter(1))[0] + 1
+
+
+def city_has_no_more_data(row, city_index):
+    return np.isnan(row['city_{}_id'.format(city_index)])
+
+
+# TODOOOOOO use shift_index, fix in data cleaning multi city
+def shift_city_up(df, shift_index, city_index):
+    city_columns = [s.format(city_index) for s in
+                    ['city_{}_id', 'city_{}_measurement_datetime', 'city_{}_aqi']]
+    df[city_columns] = df[city_columns].shift(-1)
+
+
+def align_multi_location_time_series_data(df, number_of_cities):
+    continuous_time_series = []
+    start_index = 0
+    current_index = 0
+    while df.count()[0] > current_index:
+        current_index += 1
+        row = df.loc[current_index]
+        if not row_has_same_time(row, number_of_cities):
+            continuous_time_series.append((start_index, current_index))
+            while not row_has_same_time(row, number_of_cities):
+                city_to_shift = get_city_with_smallest_time(row, number_of_cities)
+                shift_city_up(df, current_index, city_to_shift)
+                row = df.loc[current_index]
+                if city_has_no_more_data(row, city_to_shift):
+                    return df, continuous_time_series
+            start_index = current_index
+    continuous_time_series.append((start_index, current_index))
+    return df, continuous_time_series
