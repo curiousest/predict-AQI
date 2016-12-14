@@ -103,35 +103,35 @@ def clean_data(df, input_columns):
     return df[df['all_input_equal'] == False]
 
 
-def row_has_same_time(row, number_of_cities):
+def row_has_same_time(row, number_of_locs):
     '''
-    Returns whether the row has all times within 10 minutes of the base city
+    Returns whether the row has all times within 10 minutes of the base location
     '''
     ten_minutes = 60 * 10 * 10**9
-    for city_number in range(2, number_of_cities + 1):
+    for loc_number in range(2, number_of_locs + 1):
         diff = abs(
-            row['city_1_measurement_datetime'].value -
-            row['city_{}_measurement_datetime'.format(city_number)].value
+            row['loc_1_measurement_datetime'].value -
+            row['loc_{}_measurement_datetime'.format(loc_number)].value
         )
         if diff > ten_minutes:
             return False
     return True
 
 
-def get_city_with_smallest_time(row, number_of_cities):
-    row_names = ['city_{}_measurement_datetime'.format(i)
-                 for i in range(1, number_of_cities + 1)]
+def get_loc_with_smallest_time(row, number_of_locs):
+    row_names = ['loc_{}_measurement_datetime'.format(i)
+                 for i in range(1, number_of_locs + 1)]
     return min(enumerate(row[row_names]), key=itemgetter(1))[0] + 1
 
 
-def city_has_no_more_data(row, city_index):
-    return np.isnan(row['city_{}_id'.format(city_index)])
+def loc_has_no_more_data(row, loc_index):
+    return np.isnan(row['loc_{}_id'.format(loc_index)])
 
 
 def shift_single_loc_up(df, shift_index, loc_index):
     loc_columns = [s.format(loc_index) for s in
                     ['loc_{}_id', 'loc_{}_measurement_datetime', 'loc_{}_aqi']]
-    other_columns = [col for col in df.columns if col not in city_columns]
+    other_columns = [col for col in df.columns if col not in loc_columns]
     shifted_df = df[other_columns][shift_index:].join(
         df[loc_columns][shift_index:].shift(-1)
     )
@@ -139,6 +139,12 @@ def shift_single_loc_up(df, shift_index, loc_index):
 
 
 def align_multi_location_time_series_data(df, number_of_locations):
+    '''
+    Aligns the dataframe so that each row is data for approximately the same
+    point in time for all cities on that row. Returns the data frame and
+    the range of every continguous series by time of rows that didn't
+    need to be re-aligned.
+    '''
     continuous_time_series = []
     start_index = 0
     current_index = 0
@@ -148,10 +154,10 @@ def align_multi_location_time_series_data(df, number_of_locations):
         if not row_has_same_time(row, number_of_locations):
             continuous_time_series.append((start_index, current_index))
             while not row_has_same_time(row, number_of_locations):
-                loc_to_shift = get_city_with_smallest_time(row, number_of_locations)
+                loc_to_shift = get_loc_with_smallest_time(row, number_of_locations)
                 shift_single_loc_up(df, current_index, loc_to_shift)
                 row = df.loc[current_index]
-                if city_has_no_more_data(row, loc_to_shift):
+                if loc_has_no_more_data(row, loc_to_shift):
                     return df, continuous_time_series
             start_index = current_index
     continuous_time_series.append((start_index, current_index))
