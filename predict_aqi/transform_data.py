@@ -128,27 +128,30 @@ def city_has_no_more_data(row, city_index):
     return np.isnan(row['city_{}_id'.format(city_index)])
 
 
-# TODOOOOOO use shift_index, fix in data cleaning multi city
-def shift_city_up(df, shift_index, city_index):
-    city_columns = [s.format(city_index) for s in
-                    ['city_{}_id', 'city_{}_measurement_datetime', 'city_{}_aqi']]
-    df[city_columns] = df[city_columns].shift(-1)
+def shift_single_loc_up(df, shift_index, loc_index):
+    loc_columns = [s.format(loc_index) for s in
+                    ['loc_{}_id', 'loc_{}_measurement_datetime', 'loc_{}_aqi']]
+    other_columns = [col for col in df.columns if col not in city_columns]
+    shifted_df = df[other_columns][shift_index:].join(
+        df[loc_columns][shift_index:].shift(-1)
+    )
+    return df[:shift_index].append(shifted_df)
 
 
-def align_multi_location_time_series_data(df, number_of_cities):
+def align_multi_location_time_series_data(df, number_of_locations):
     continuous_time_series = []
     start_index = 0
     current_index = 0
     while df.count()[0] > current_index:
         current_index += 1
         row = df.loc[current_index]
-        if not row_has_same_time(row, number_of_cities):
+        if not row_has_same_time(row, number_of_locations):
             continuous_time_series.append((start_index, current_index))
-            while not row_has_same_time(row, number_of_cities):
-                city_to_shift = get_city_with_smallest_time(row, number_of_cities)
-                shift_city_up(df, current_index, city_to_shift)
+            while not row_has_same_time(row, number_of_locations):
+                loc_to_shift = get_city_with_smallest_time(row, number_of_locations)
+                shift_single_loc_up(df, current_index, loc_to_shift)
                 row = df.loc[current_index]
-                if city_has_no_more_data(row, city_to_shift):
+                if city_has_no_more_data(row, loc_to_shift):
                     return df, continuous_time_series
             start_index = current_index
     continuous_time_series.append((start_index, current_index))
