@@ -98,8 +98,8 @@ def shift_outputs_forwards(y_all, shift_count, source_column_name, column_string
     return y_all, output_columns
 
 
-def clean_data(df, input_columns):
-    df['all_input_equal'] = df[input_columns].apply(lambda x: len(set(x)) < 3, axis=1)
+def clean_data(df, input_columns, after_x_in_a_row=3):
+    df['all_input_equal'] = df[input_columns].apply(lambda x: len(set(x)) < after_x_in_a_row, axis=1)
     return df[df['all_input_equal'] == False]
 
 
