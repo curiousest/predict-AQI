@@ -16,5 +16,60 @@ def generate_predictions():
     pass
 
 
-def generate_AQI_inputs_and_outputs():
-    pass
+def generate_AQI_inputs_and_outputs(df,
+                                    continuous_time_series,
+                                    indices_ahead_to_predict,
+                                    number_of_locations,
+                                    output_column_format="{}_ahead_AQI",
+                                    source_column_format="loc_{}_aqi",
+                                    normalized_column_format="loc_{}_normalized_AQI"):
+
+    for loc_number in range(1, number_of_locations + 1):
+        df[normalized_column_format.format(loc_number)] = \
+            df[source_column_format.format(loc_number)].map(get_normalized_aqi)
+
+    df, output_columns = generate_outputs(
+        df,
+        indices_ahead_to_predict,
+        "loc_1_normalized_AQI",
+        output_column_format
+    )
+
+    # We have to cut out the rows where a value in x_ahead_AQI is incorrect
+    # (because there was no data or there was a time shift ahead)
+    for index, (start, end) in enumerate(continuous_time_series):
+        continuous_time_series[index] = (start, end - indices_ahead_to_predict[-1])
+
+    input_columns = [normalized_column_format.format(i) for i in range(1, number_of_locations + 1)]
+
+    return df, continuous_time_series, input_columns, output_columns
+
+
+
+def generate_outputs(df,
+                     indices_ahead_to_predict,
+                     AQI_column,
+                     output_column_format="{}_ahead_AQI"):
+    '''
+    Returns a dataframe with the future AQI values that are supposed to be predicted for each row.
+    '''
+    output_columns = []
+
+    for index in indices_ahead_to_predict:
+        output_column = output_column_format.format(str(index))
+        output_columns.append(output_column)
+        shift_and_save_column(df, AQI_column, output_column, shift=-index)
+    return df, output_columns
+
+
+def generate_inputs_for_recent_AQI(measurements, indices_behind_to_use, AQI_column, input_column_format="{}_ago_AQI"):
+    '''
+    Returns a dataframe with the recent AQI inputs for each row.
+    '''
+    input_columns = []
+
+    for index in indices_behind_to_use:
+        input_column = input_column_format.format(str(index))
+        input_columns.append(input_column)
+        shift_and_save_column(measurements, AQI_column, input_column, shift=index)
+    return measurements, input_columns
