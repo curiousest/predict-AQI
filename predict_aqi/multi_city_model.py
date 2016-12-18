@@ -5,7 +5,7 @@ import pandas as pd
 from predict_aqi import config
 
 from predict_aqi.transform_data import (
-    generate_time_inputs, shift_and_save_column, get_normalized_aqi
+    generate_time_inputs, shift_and_save_column, get_normalized_aqi, clean_data
 )
 from predict_aqi.predictor_utils import (
     train_regressor, predict_values, print_mean_absolute_error

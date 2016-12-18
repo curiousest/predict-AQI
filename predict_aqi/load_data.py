@@ -38,6 +38,8 @@ def load_measurement_data(airlocation_id):
         AirMeasurement.aqi != None
     ).where(
         AirMeasurement.aqi != 0
+    ).where(
+        AirMeasurement.measurement_datetime != None
     ).order_by(AirMeasurement.id.asc())
     return pd.read_sql(s, engine)
 

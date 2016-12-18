@@ -1,3 +1,4 @@
+import datetime
 import math
 import itertools
 import numpy as np
@@ -28,16 +29,19 @@ def make_circular_input(input, input_max, input_min=0):
 
 
 def get_normalized_time_inputs(dt):
-    return tuple(itertools.chain(
-        # minute of day
-        make_circular_input((dt.time().hour * 60) + dt.time().minute, 1440),
-        # day of the year
-        make_circular_input(dt.timetuple().tm_yday, 365),
-        # day of the week, from 0 to 6
-        make_circular_input(dt.date().weekday(), 6),
-        # day of the month
-        make_circular_input(dt.date().day, 31, 1),
-    ))
+    if type(dt) == datetime.datetime:
+        return tuple(itertools.chain(
+            # minute of day
+            make_circular_input((dt.time().hour * 60) + dt.time().minute, 1440),
+            # day of the year
+            make_circular_input(dt.timetuple().tm_yday, 365),
+            # day of the week, from 0 to 6
+            make_circular_input(dt.date().weekday(), 6),
+            # day of the month
+            make_circular_input(dt.date().day, 31, 1),
+        ))
+    else:
+        return None, None, None, None, None, None, None, None
 
 
 def generate_time_inputs(df, time_column="measurement_datetime"):

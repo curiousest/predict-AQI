@@ -10,6 +10,8 @@ For a given city at a given point in time, what will the air pollution be for th
 
 The baseline model to beat is one that predicts that the next 24 hours will be the same AQI as right now.
 
+Note for reviewer: [Proposal review](https://review.udacity.com/#!/reviews/267521)
+
 ## Project Report
 
 [Detailed report](./report.md)
