@@ -1,4 +1,64 @@
-## Hypothesis
+## Definition
+
+### Project Overview xx
+Student provides a high-level overview of the project in layman’s terms. Background information such as the problem domain, the project origin, and related data sets or input data is given.
+
+### Problem Statement xx
+The problem which needs to be solved is clearly defined. A strategy for solving the problem, including discussion of the expected solution, has been made.
+
+### Metrics xx
+Metrics used to measure performance of a model or result are clearly defined. Metrics are justified based on the characteristics of the problem.
+
+## Analysis
+
+### Data Exploration xx
+If a dataset is present, features and calculated statistics relevant to the problem have been reported and discussed, along with a sampling of the data. In lieu of a dataset, a thorough description of the input space or input data has been made. Abnormalities or characteristics about the data or input that need to be addressed have been identified.
+
+### Exploratory Visualization xx
+A visualization has been provided that summarizes or extracts a relevant characteristic or feature about the dataset or input data with thorough discussion. Visual cues are clearly defined.
+
+### Algorithms and Techniques xx
+Algorithms and techniques used in the project are thoroughly discussed and properly justified based on the characteristics of the problem.
+
+### Benchmark xx
+Student clearly defines a benchmark result or threshold for comparing performances of solutions obtained.
+
+## Methodology
+
+### Data Preprocessing xx
+All preprocessing steps have been clearly documented. Abnormalities or characteristics about the data or input that needed to be addressed have been corrected. If no data preprocessing is necessary, it has been clearly justified.
+
+### Implementation xx
+The process for which metrics, algorithms, and techniques were implemented with the given datasets or input data has been thoroughly documented. Complications that occurred during the coding process are discussed.
+
+### Refinement xx
+The process of improving upon the algorithms and techniques used is clearly documented. Both the initial and final solutions are reported, along with intermediate solutions, if necessary.
+
+## Results
+
+### Model Evaluation and Validation xx
+The final model’s qualities — such as parameters — are evaluated in detail. Some type of analysis is used to validate the robustness of the model’s solution.
+
+### Justification xx
+The final results are compared to the benchmark result or threshold with some type of statistical analysis. Justification is made as to whether the final model and solution is significant enough to have adequately solved the problem.
+
+## Conclusion
+
+### Free-form Visualization xx
+A visualization has been provided that emphasizes an important quality about the project with thorough discussion. Visual cues are clearly defined.
+
+### Reflection xx
+Student adequately summarizes the end-to-end problem solution and discusses one or two particular aspects of the project they found interesting or difficult.
+
+### Improvement xx
+	
+Discussion is made as to how one aspect of the implementation could be improved. Potential solutions resulting from these improvements are considered and compared/contrasted to the current solution.
+
+## References xx
+
+
+
+## Testing Hypotheses
 
 ### Hypothesis 1
 
@@ -21,11 +81,7 @@ When combining recent AQI and time regressors to make a prediction, the number o
 
 ### Hypothesis 4
 
-The recent AQI of nearby locations is a very good indicator of the near future AQI for a given location. 
-
-### Hypothesis 5
-
-A predictor (using recent AQI history + time) trained across all locations will not add predictive power to one trained on nearby locations (using recent AQI history + time).
+The AQI of nearby locations is a very good indicator of the near future AQI for a given location. 
 
 
 ### Tune the predictor

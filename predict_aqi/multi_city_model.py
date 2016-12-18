@@ -40,10 +40,14 @@ def generate_AQI_inputs_and_outputs(df,
     for index, (start, end) in enumerate(continuous_time_series):
         continuous_time_series[index] = (start, end - indices_ahead_to_predict[-1])
 
-    input_columns = [normalized_column_format.format(i) for i in range(1, number_of_locations + 1)]
+    df, time_columns = generate_time_inputs(df, time_column="loc_1_measurement_datetime")
+
+    input_columns = list(itertools.chain(
+        [normalized_column_format.format(i) for i in range(1, number_of_locations + 1)],
+        time_columns
+    ))
 
     return df, continuous_time_series, input_columns, output_columns
-
 
 
 def generate_outputs(df,
@@ -60,16 +64,3 @@ def generate_outputs(df,
         output_columns.append(output_column)
         shift_and_save_column(df, AQI_column, output_column, shift=-index)
     return df, output_columns
-
-
-def generate_inputs_for_recent_AQI(measurements, indices_behind_to_use, AQI_column, input_column_format="{}_ago_AQI"):
-    '''
-    Returns a dataframe with the recent AQI inputs for each row.
-    '''
-    input_columns = []
-
-    for index in indices_behind_to_use:
-        input_column = input_column_format.format(str(index))
-        input_columns.append(input_column)
-        shift_and_save_column(measurements, AQI_column, input_column, shift=index)
-    return measurements, input_columns
