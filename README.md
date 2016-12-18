@@ -16,10 +16,10 @@ The baseline model to beat is one that predicts that the next 24 hours will be t
 
 Four hypotheses were explored:
 
-* [Time of day, day of week, day of month, and day of year can produce fairly accurate AQI predictions.](./notebooks/hypothesis1_date_time.ipynb)
-* [The recent AQI of a given location is a very good indicator of the near future AQI for that location.](./notebooks/hypothesis2_recent_history.ipynb)
-* [When combining recent AQI and time inputs to regressors to make a prediction, the number of input values needed for "recent AQI" is somewhere between six hours to one day.](./notebooks/hypothesis3_history_depth.ipynb)
-* [The AQI of nearby locations is a very good indicator of the near future AQI for a given location.](./notebooks/hypothesis4_nearby_locations.ipynb)
+* [Time of day, day of week, day of month, and day of year can produce fairly accurate AQI predictions.](./predict_aqi/notebooks/hypothesis1_date_time.ipynb)
+* [The recent AQI of a given location is a very good indicator of the near future AQI for that location.](./predict_aqi/notebooks/hypothesis2_recent_history.ipynb)
+* [When combining recent AQI and time inputs to regressors to make a prediction, the number of input values needed for "recent AQI" is somewhere between six hours to one day.](./predict_aqi/notebooks/hypothesis3_history_depth.ipynb)
+* [The AQI of nearby locations is a very good indicator of the near future AQI for a given location.](./predict_aqi/notebooks/hypothesis4_nearby_locations.ipynb)
 
 If all the hypotheses were correct, the final model would have ended up looking something like:
 
@@ -60,7 +60,7 @@ commands to do that
 ## Libraries Used
 
 For data transformation and prediction:
-* Python
+* Python 3
 * NumPy
 * Pandas
 * Matplotlib
