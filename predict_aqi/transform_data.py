@@ -29,7 +29,7 @@ def make_circular_input(input, input_max, input_min=0):
 
 
 def get_normalized_time_inputs(dt):
-    if type(dt) == datetime.datetime:
+    try:
         return tuple(itertools.chain(
             # minute of day
             make_circular_input((dt.time().hour * 60) + dt.time().minute, 1440),
@@ -40,7 +40,7 @@ def get_normalized_time_inputs(dt):
             # day of the month
             make_circular_input(dt.date().day, 31, 1),
         ))
-    else:
+    except ValueError:
         return None, None, None, None, None, None, None, None
 
 
@@ -102,15 +102,15 @@ def shift_outputs_forwards(y_all, shift_count, source_column_name, column_string
     return y_all, output_columns
 
 
-def small_and_not_empty(values, after_x_in_a_row):
-    return len(values) < after_x_in_a_row and np.isnan not in values
+def too_small_or_empty(values, after_x_in_a_row):
+    return len(values) < after_x_in_a_row or any(map(np.isnan, values))
 
 
 def clean_data(df, input_columns, after_x_in_a_row=3, remove_dirty=True):
     '''
     Removes a row
     '''
-    df['is_dirty'] = df[input_columns].apply(lambda x: small_and_not_empty(set(x), after_x_in_a_row), axis=1)
+    df['is_dirty'] = df[input_columns].apply(lambda x: too_small_or_empty(set(x), after_x_in_a_row), axis=1)
     if remove_dirty:
         return df[df['is_dirty'] == False]
     else:
