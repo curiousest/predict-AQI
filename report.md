@@ -1,10 +1,41 @@
 ## Definition
 
-### Project Overview xx
+### Project Overview x
 Student provides a high-level overview of the project in layman’s terms. Background information such as the problem domain, the project origin, and related data sets or input data is given.
+
+Air pollution was linked to 7 million premature deaths in 2012 [1] (~55 million people died in total in 2012 [2]). Using pollution masks when air pollution is bad can reduce premature deaths linked to air pollution. There are many consumer applications and services that broadcast what the air pollution is and has been, but there are very few that predict what air pollution will be. Similar to weather, individuals care more about air pollution in the near future, so they can make decisions about their day/week.
+
+AQI (Air quality index) is a measurement that is commonly used to indicate air pollution. The number represents the greatest concentration (on a non-linear scale) of one of several types of harmful particles in the air. aqicn.org is a website that reports AQI in different locations around the world, and is used as a data source for this project.
 
 ### Problem Statement xx
 The problem which needs to be solved is clearly defined. A strategy for solving the problem, including discussion of the expected solution, has been made.
+
+For a given location at a given point in time, what will the air pollution be for the next 24 hours?
+
+For a given city at a given point in time, the model will use the inputs:
+
+* The recent AQI of the location
+* The recent AQI of other nearby locations
+* The current date and time
+
+Transformed to produce the normalized features:
+
+* The cos and sine of the minute of the day (cos and sine used to make the input circular - where 0 is 'close' to 1)
+* The cos and sine of the day of the week
+* The cos and sine of the day of the month
+* The cos and sine of the day of the year
+* The recent AQI of the location
+* The recent AQI of other nearby locations
+
+Used to predict the following output:
+
+* An AQI prediction for every hour over the next 24 hours
+
+The model I expect to build will look like the following:
+
+![original model](images/original_model.png)
+
+
 
 ### Metrics xx
 Metrics used to measure performance of a model or result are clearly defined. Metrics are justified based on the characteristics of the problem.
