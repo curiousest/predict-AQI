@@ -24,6 +24,7 @@ Four hypotheses were explored:
 * [The AQI of nearby locations is a very good indicator of the near future AQI for a given location.](./predict_aqi/notebooks/hypothesis4_nearby_locations.ipynb)
 
 If all the hypotheses were correct, the final model would have ended up looking something like:
+
 ![original model](images/original_model.png)
 
 However, one hypothesis proved incorrect, so the final model ended up looking more like:
