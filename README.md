@@ -1,5 +1,16 @@
 # predict-AQI
 
+Work in progress
+
+- [x] Project proposal
+- [x] Load & clean data
+- [x] Explore Hypothesis # 1
+- [x] Explore Hypothesis # 2
+- [x] Explore Hypothesis # 3
+- [ ] Explore Hypothesis # 4
+- [ ] Produce final model & gather results
+- [ ] Finish report
+
 ## Project Proposal
 
 [Detailed proposal](./proposal.md)
