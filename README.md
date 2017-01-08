@@ -1,5 +1,16 @@
 # predict-AQI
 
+Work in progress
+
+- [x] Project proposal
+- [x] Load & clean data
+- [x] Explore Hypothesis # 1
+- [x] Explore Hypothesis # 2
+- [x] Explore Hypothesis # 3
+- [ ] Explore Hypothesis # 4
+- [ ] Produce final model & gather results
+- [ ] Finish report
+
 ## Project Proposal
 
 [Detailed proposal](./proposal.md)
@@ -25,7 +36,7 @@ Four hypotheses were explored:
 
 If all the hypotheses were correct, the final model would have ended up looking something like:
 
-*** Insert structural picture here ***
+![original model](images/original_model.png)
 
 However, one hypothesis proved incorrect, so the final model ended up looking more like:
 
