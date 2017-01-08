@@ -18,7 +18,7 @@ def generate_predictions(all_data,
                          second_step_format_inputs_outputs_function,
                          second_step_split_function,
                          first_step_regressor,
-                         second_step_regressor,
+                         second_step_regressors,
                          indices_ahead_to_predict,
                          print_progress=True
                          ):
@@ -45,19 +45,22 @@ def generate_predictions(all_data,
     # Second step of model is to make predictions combining recent AQI predictions with time inputs
     second_step_data, second_step_feature_columns, second_step_output_columns = \
         second_step_format_inputs_outputs_function(all_data)
-    x_train, y_train, x_test, y_test = second_step_split_function(
-        second_step_data, second_step_feature_columns, second_step_output_columns
-    )
-    train_regressor(second_step_regressor, x_train, y_train, print_progress)
 
-    # Make the second step predictions and merge them into the all_data dataframe
-    second_step_predictions = predict_values(
-        second_step_regressor, all_data[second_step_feature_columns], print_progress
-    )
-    second_step_predictions_df = pd.DataFrame(second_step_predictions, index=all_data.index)
-    prediction_columns = ['{}_ahead_second_step_pred'.format(str(i)) for i in indices_ahead_to_predict]
-    second_step_predictions_df.columns = prediction_columns
-    all_data = all_data.join(second_step_predictions_df)
+    # make a regressor + predictions for each "x hours ahead" we want to predict
+    for index_ahead_to_predict, second_step_output_column, second_step_regressor in zip(indices_ahead_to_predict, second_step_output_columns, second_step_regressors):
+        x_train, y_train, x_test, y_test = second_step_split_function(
+            second_step_data, second_step_feature_columns, [second_step_output_column]
+        )
+        train_regressor(second_step_regressor, x_train, y_train, print_progress)
+
+        # Make the second step predictions and merge them into the all_data dataframe
+        second_step_predictions = predict_values(
+            second_step_regressor, all_data[second_step_feature_columns], print_progress
+        )
+        second_step_predictions_df = pd.DataFrame(second_step_predictions, index=all_data.index)
+        prediction_columns = ['{}_ahead_second_step_pred'.format(str(index_ahead_to_predict))]
+        second_step_predictions_df.columns = prediction_columns
+        all_data = all_data.join(second_step_predictions_df)
 
     return all_data
 

@@ -4,11 +4,11 @@
 
 [Detailed proposal](./proposal.md)
 
-AQI is an integer measurement of air pollution. This project is to make an AQI prediction in the near future, given past AQI measurements of nearby locations. The project aims to predict:
+This project is to make AQI predictions in the near future, given past AQI measurements of nearby locations (AQI is an integer measurement of air pollution). More specifically, the project aims to predict:
 
-For a given city at a given point in time, what will the air pollution be for the next 24 hours?
+For a given location at a given point in time, what will the air pollution be every hour for the next 24 hours?
 
-The baseline model to beat is one that predicts that the next 24 hours will be the same AQI as right now.
+The baseline model to beat is one that predicts that the AQI for the next 24 hours will be the same AQI as right now.
 
 Note for reviewer: [Proposal review](https://review.udacity.com/#!/reviews/267521)
 

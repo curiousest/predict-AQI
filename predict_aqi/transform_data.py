@@ -70,6 +70,13 @@ def get_denormalized_aqi(normalized_aqi):
         return 0
 
 
+def generate_baseline_predictions(df, output_columns, source_column='aqi'):
+    for output_column in output_columns:
+        prediction_column_name = output_column.replace('_ahead_AQI', '_ahead_baseline_pred')
+        df[prediction_column_name] = df[source_column]
+    return df
+
+
 def shift_and_save_column(df, source_col_name, dest_col_name, shift=1):
     df[dest_col_name] = getattr(df, source_col_name).shift(shift)
 
