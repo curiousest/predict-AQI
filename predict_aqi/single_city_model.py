@@ -12,16 +12,16 @@ from predict_aqi.predictor_utils import (
 )
 
 
-def generate_predictions(all_data,
-                         first_step_format_inputs_outputs_function,
-                         first_step_split_function,
-                         second_step_format_inputs_outputs_function,
-                         second_step_split_function,
-                         first_step_regressor,
-                         second_step_regressors,
-                         indices_ahead_to_predict,
-                         print_progress=True
-                         ):
+def generate_predictions_two_step(all_data,
+                                  first_step_format_inputs_outputs_function,
+                                  first_step_split_function,
+                                  second_step_format_inputs_outputs_function,
+                                  second_step_split_function,
+                                  first_step_regressor,
+                                  second_step_regressors,
+                                  indices_ahead_to_predict,
+                                  print_progress=True
+                                  ):
 
     if print_progress:
         print("Step 1")
@@ -61,6 +61,34 @@ def generate_predictions(all_data,
         prediction_columns = ['{}_ahead_second_step_pred'.format(str(index_ahead_to_predict))]
         second_step_predictions_df.columns = prediction_columns
         all_data = all_data.join(second_step_predictions_df)
+
+    return all_data
+
+
+def generate_predictions_one_step(all_data,
+                                  format_inputs_outputs_function,
+                                  split_function,
+                                  regressors,
+                                  indices_ahead_to_predict,
+                                  print_progress=True
+                                  ):
+    df, feature_columns, output_columns = format_inputs_outputs_function(all_data)
+
+    # make a regressor + predictions for each "x hours ahead" we want to predict
+    for index_ahead_to_predict, output_column, regressor in zip(indices_ahead_to_predict, output_columns, regressors):
+        x_train, y_train, x_test, y_test = split_function(
+            df, feature_columns, [output_column]
+        )
+        train_regressor(regressor, x_train, y_train, print_progress)
+
+        # Make the second step predictions and merge them into the all_data dataframe
+        predictions = predict_values(
+            regressor, all_data[feature_columns], print_progress
+        )
+        predictions_df = pd.DataFrame(predictions, index=all_data.index)
+        prediction_columns = ['{}_ahead_one_step_pred'.format(str(index_ahead_to_predict))]
+        predictions_df.columns = prediction_columns
+        all_data = all_data.join(predictions_df)
 
     return all_data
 
@@ -147,3 +175,12 @@ def get_second_step_functions(input_columns, output_columns, indices_ahead_to_pr
         return all_data, second_input_columns, output_columns
 
     return second_step_format_inputs_outputs, cut_off_end_split_function
+
+
+def get_one_step_functions(input_columns, output_columns):
+    def one_step_format_inputs_outputs(all_data):
+        all_data, time_columns = generate_time_inputs(all_data)
+        one_step_input_columns = list(itertools.chain(time_columns, input_columns))
+        return all_data, one_step_input_columns, output_columns
+
+    return one_step_format_inputs_outputs, cut_off_end_split_function

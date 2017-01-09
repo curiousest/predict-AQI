@@ -35,7 +35,21 @@ The model I expect to build will look like the following:
 
 ![original model](images/original_model.png)
 
+For predicting 2 hours ahead of the current time compared to 20 hours ahead of time, it makes sense to train different regressors, since the relevance of inputs are likely to be different. Taken to the extreme, the model uses a different regressor for each number of hours ahead to predict.
 
+The total number of inputs available for each prediction is:
+
+`48x + 8` where x is the number of nearby locations used
+
+* 48 AQI measurements for a day in the past of a single location
+* Multiple locations
+* cos and sine of
+  * minute of the day
+  * day of the week
+  * day of the month
+  * day of the year
+
+If there was one regressor for each x-hours-ahead-prediction, that regressor would have a very large number of inputs to train on. In order to mitigate that problem, predictions are broken into two steps. The first step is to have a regressor for each location, using the 48 inputs of that location to predict each x-hours-ahead output at the target location. The second step is to have a regressor for each x-hours-ahead-prediction using each x-hours-ahead prediction from the second step along with the date and time inputs to make a single x-hours-ahead prediction. 
 
 ### Metrics xx
 Metrics used to measure performance of a model or result are clearly defined. Metrics are justified based on the characteristics of the problem.
