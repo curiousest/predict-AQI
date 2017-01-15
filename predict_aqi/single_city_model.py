@@ -48,6 +48,13 @@ def generate_predictions_two_step(all_data,
 
     # make a regressor + predictions for each "x hours ahead" we want to predict
     for index_ahead_to_predict, second_step_output_column, second_step_regressor in zip(indices_ahead_to_predict, second_step_output_columns, second_step_regressors):
+        # Use only the prediction from the first step that corresponds to this step's regressor, otherwise
+        # it will overfit using all the first step prediction values.
+        second_step_input_column_from_first = second_step_output_column.replace('second_step', 'first_step')
+        second_step_feature_columns = list(itertools.chain(
+            second_step_feature_columns, [second_step_input_column_from_first]
+        ))
+
         x_train, y_train, x_test, y_test = second_step_split_function(
             second_step_data, second_step_feature_columns, [second_step_output_column]
         )
@@ -168,11 +175,7 @@ def get_second_step_functions(input_columns, output_columns, indices_ahead_to_pr
 
     def second_step_format_inputs_outputs(all_data):
         all_data, time_columns = generate_time_inputs(all_data)
-        first_step_prediction_columns = ['{}_ahead_first_step_pred'.format(str(i))
-                                         for i in indices_ahead_to_predict]
-        second_input_columns = list(itertools.chain(time_columns, first_step_prediction_columns))
-        # return the right columns
-        return all_data, second_input_columns, output_columns
+        return all_data, time_columns, output_columns
 
     return second_step_format_inputs_outputs, cut_off_end_split_function
 
