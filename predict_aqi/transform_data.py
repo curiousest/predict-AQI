@@ -184,7 +184,6 @@ def align_multi_location_time_series_data(dfs, number_of_locations):
                 loc_to_shift = get_loc_with_smallest_time(row, number_of_locations)
                 dfs[loc_to_shift - 1] = shift_single_loc_up(dfs[loc_to_shift - 1], current_index)
                 row = [df.loc[current_index] for df in dfs]
-                #print(row)
                 if loc_has_no_more_data(row, loc_to_shift):
                     return join_dataframes(dfs), continuous_time_series
             start_index = current_index
