@@ -19,6 +19,7 @@ def generate_predictions():
 def generate_AQI_inputs_and_outputs(df,
                                     continuous_time_series,
                                     indices_ahead_to_predict,
+                                    indices_behind_to_use,
                                     number_of_locations,
                                     output_column_format="{}_ahead_AQI",
                                     source_column_format="loc_{}_aqi",
@@ -42,10 +43,15 @@ def generate_AQI_inputs_and_outputs(df,
 
     df, time_columns = generate_time_inputs(df, time_column="loc_1_measurement_datetime")
 
-    input_columns = list(itertools.chain(
-        [normalized_column_format.format(i) for i in range(1, number_of_locations + 1)],
-        time_columns
-    ))
+    input_columns = time_columns
+
+    # generate the x_ago_loc_y columns
+    for loc_number in range(1, number_of_locations + 1):
+        input_column_format = '{}' + "_ago_loc_{}".format(loc_number)
+        for index in indices_behind_to_use:
+            input_column = input_column_format.format(str(index))
+            input_columns.append(input_column)
+            shift_and_save_column(df, "loc_{}_normalized_AQI".format(loc_number), input_column, shift=index)
 
     return df, continuous_time_series, input_columns, output_columns
 

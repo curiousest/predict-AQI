@@ -113,13 +113,17 @@ def too_small_or_empty(values, after_x_in_a_row):
     return len(values) < after_x_in_a_row or any(map(np.isnan, values))
 
 
-def clean_data(df, input_columns, after_x_in_a_row=3, remove_dirty=True):
+def clean_data(df, input_columns, output_columns=None, after_x_in_a_row=3, remove_dirty=True):
     '''
-    Removes a row
+    Removes a row if it has null input/output values or
+    if most of the inputs are the same numbers (bad data)
     '''
     df['is_dirty'] = df[input_columns].apply(lambda x: too_small_or_empty(set(x), after_x_in_a_row), axis=1)
     if remove_dirty:
-        return df[df['is_dirty'] == False]
+        new_df = df[df['is_dirty'] == False]
+        if output_columns:
+            new_df['is_dirty'] = new_df[output_columns].apply(lambda x: any(map(np.isnan, x)), axis=1)
+            return new_df[new_df['is_dirty'] == False]
     else:
         return df
 
