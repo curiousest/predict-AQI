@@ -52,8 +52,7 @@ def wkt_string_to_lat_lon(wkt_string):
 
 def load_nearby_locations(airlocation_id, distance_km):
     '''
-    Return a list of dataframes of location air quality measurement data within `distance_km` of location with id
-    `airlocation_id`
+    Return a list of airlocation details within `distance_km` of location with id `airlocation_id`
     '''
     airlocation_wkt_string = execute_raw_sql(
         "SELECT ST_ASEWkt(coordinates) from locs_airlocation "
@@ -77,3 +76,27 @@ def execute_raw_sql(sql_string):
     return session.execute(sql_string)
 
 
+def load_nearby_airlocations_to_list_of_dataframes(airlocation_id, distance_km, max_locations=3, print_progress=False):
+    nearby_locations = load_nearby_locations(airlocation_id, distance_km)
+    if print_progress:
+        print("Predicting for: " + load_air_location_data(nearby_locations[0][0])['en_city_name'])
+        print("Using nearby locations: " + str([load_air_location_data(l[0])["short_name"] for l in nearby_locations[1:]]))
+
+    loc_columns_format = ['loc_{}_id', 'loc_{}_measurement_datetime', 'loc_{}_aqi']
+
+    def initial_load_and_format_airlocation(airlocation_id, index):
+        single_loc_df = load_measurement_data(airlocation_id)
+        single_loc_df.columns = [c.format(index) for c in loc_columns_format]
+        if print_progress:
+            print("{} rows loaded for loc #{}".format(single_loc_df.count()[0], airlocation_id))
+        return single_loc_df
+
+    airlocation_ids = [l[0] for l in nearby_locations[:max_locations]]
+
+    df_list = [initial_load_and_format_airlocation(nearby_locations[0][0], 1)]
+
+    for index, id in enumerate(airlocation_ids[1:max_locations]):
+        loc_df = initial_load_and_format_airlocation(id, index + 2)
+        df_list.append(loc_df)
+
+    return df_list, airlocation_ids
