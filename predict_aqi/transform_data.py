@@ -179,7 +179,7 @@ def align_multi_location_time_series_data(dfs, number_of_locations):
     continuous_time_series = []
     start_index = 0
     current_index = 0
-    while dfs[0].count()[0] > current_index:
+    while dfs[0].count()[0] > current_index + 1:
         current_index += 1
         row = [df.loc[current_index] for df in dfs]
         if not row_has_same_time(row, number_of_locations):
