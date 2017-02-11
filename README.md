@@ -7,8 +7,8 @@ Work in progress
 - [x] Explore Hypothesis # 1
 - [x] Explore Hypothesis # 2
 - [x] Explore Hypothesis # 3
-- [ ] Explore Hypothesis # 4
-- [ ] Produce final model & gather results
+- [x] Explore Hypothesis # 4
+- [x] Produce final model & gather results
 - [ ] Finish report
 
 ## Project Proposal
@@ -34,17 +34,19 @@ Four hypotheses were explored:
 * [When combining recent AQI and time inputs to regressors to make a prediction, the number of input values needed for "recent AQI" is somewhere between six hours to one day.](./predict_aqi/notebooks/hypothesis3_history_depth.ipynb)
 * [The AQI of nearby locations is a very good indicator of the near future AQI for a given location.](./predict_aqi/notebooks/hypothesis4_nearby_locations.ipynb)
 
-If all the hypotheses were correct, the final model would have ended up looking something like:
+The final model ended up being structured like this:
 
 ![original model](images/original_model.png)
 
-However, one hypothesis proved incorrect, so the final model ended up looking more like:
-
-*** Insert structural picture here ***
-
-Exploring these hypotheses gradually built up a pipeline and model. In the end, a final predictive model that was built makes a prediction on the next 24 hours of AQI for a location, given the AQI history of nearby locations and current point in time.
+Exploring these hypotheses gradually built up preprocessing, a pipeline, and a model. In the end, a hyperparameter grid search was performed and compared against the baseline model.
 
 [Model Visualizations](./notebooks/final_model.ipynb)
+
+No one set of hyperparameters for the model was optimal across all locations.
+
+<insert top x model graphs>
+
+Small improvements to the model and some changes to the testing process would be necessary to make the model production-ready (improvements link).
 
 ## Setup to Reproduce
 
