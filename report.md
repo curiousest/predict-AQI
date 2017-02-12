@@ -202,6 +202,7 @@ loc_1_time loc_2_time
 ```
 
 3. Combine the dataframes into one, containing rows: `loc_1_aqi, loc_1_datetime, loc_2_aqi, loc_2_datetime, ...`
+4. Normalize aqi values
 4. For each row and the single target location, generate `loc_1_n_ahead_aqi` ∀ n ϵ 1..24 (these are used as the data to test each prediction against).
 5. For each row and each location, generate `loc_x_n_behind_aqi` ∀ n ϵ 0.5, 1, 1.5, ..., 24 (these are used as features).
 6. Remove all the rows that are invalid - ∃ `loc_x_n_ahead_aqi` or `loc_x_n_behind_aqi` on the row that are either invalid or not all within a single continuous time series. If there are too many AQI measurements in succession with the same value, the row is considered invalid (it is extremely unusual to get the same AQI measurement three or four times in a row). 
@@ -212,11 +213,111 @@ loc_1_time loc_2_time
 * Day of the month
 * Day of the year
 
-### Implementation xx
+### Implementation x
 The process for which metrics, algorithms, and techniques were implemented with the given datasets or input data has been thoroughly documented. Complications that occurred during the coding process are discussed.
 
-### Refinement xx
+The expected solution described in the Problem Statement section contained many hypotheses. The process undertaken to evaluate whether the expected solution was appropriate was to individually evaluate each hypothesis while building up a pipeline and final model.
+
+####  Hypothesis 1 x
+
+Time of day, day of week, day of month, and day of year are fairly strong predictors of AQI.
+
+[Notebook](./notebooks/hypothesis1_date_time.ipynb)
+
+In exploring this hypothesis, some preprocessing steps were implemented: data retrieval and turning date and time inputs into circular features. 
+
+A single location's AQI data was visualized and had a basic linear regressor applied to it, using just the circular features to predict AQI. See the following graph:
+
+* The yellow dots are measurements
+* The blue dots are simple linear regression, trained on the entire dataset, using the date+time as the only input
+* The green dots are simple linear regression, trained on the first 80% of the dataset, using the date+time as the only input
+
+For the whole year:
+XXXhypothesis1
+
+For November:
+XXXhypothesis1
+
+As expected, the regressor made cyclical predictions that had obvious periods of one day. There seemed a cycle with period of one year, and the monthly / weekly cycles were less obvious. Although far from a rigorous validation of the hypothesis, these visual results vaguely suggest at the validity of the hypothesis. It was more valuable to move on to further hypotheses than to dive into more rigour at this point.
+
+#### Hypothesis 2 x
+
+The recent AQI of a given location is a very good indicator of the near future AQI for that location.
+
+[Notebook](./notebooks/hypothesis2_recent_history.ipynb)
+
+In exploring this hypothesis, more preprocessing steps were implemented: normalizing AQI values, generating `loc_1_n_ahead_aqi` values, and generating `loc_x_m_behind_aqi` values. The baseline model was also implemented.
+
+To explore this hypothesis, a MLP regressor was trained using the `loc_x_m_behind_aqi` features (and not the date and time features). The predictions appeared to be reasonable.
+ 
+This graph shows a few days of the model's predictions. At any given location on the x-axis, the y-axis values are the model's predictions if it was predicting n hours ago. 
+
+XXX4-days-graph-hypothesis2
+
+The predictions seem reasonable. Note that the predictions from further in the past are closer to the recent average than predictions from the near past. This is another positive indication that the predictor is making reasonable predictions.
+ 
+Since the model seemed reasonable, it was more valuable to move onto further hypotheses. Again, this wasn't a rigorous validation of the hypothesis, especially because it wasn't comparing the model to the baseline model.
+
+#### Hypothesis 3 x
+
+When combining recent AQI and time regressors to make a prediction, the number of values needed for "recent AQI" is somewhere between 4 to 24 hours.
+
+[Notebook](./notebooks/hypothesis3_history_depth.ipynb)
+
+In exploring this hypothesis, another preprocessing step was implemented: removing invalid rows (due to null AQI measurements). 
+
+To explore this hypothesis, much of the two-step model was implemented. The first step of the model was, for a single location, to use the `loc_1_m_behind_aqi` features with a MLP regressor to predict each `loc_1_n_ahead_aqi` output. The second step of the model was, for each `loc_1_n_ahead_aqi` prediction from the first step, to combine it with the date and time features to predict the corresponding `loc_1_n_ahead_aqi` output. This meant n + 1 regressors were trained and used (where n is the number of hours ahead to predict). The baseline model was also implemented.
+
+These are the results for all the predictions on a single location. This kind of graph will used often. The x-axis represents predictions n hours in the future. The y-axis represents the average absolute error for the predictor. That means a single point is the average absolute error for the predictor predicting n hours ahead. Note that the baseline model error (red line) will always start low, quickly increase in error, then taper off. This is because in this graph, the baseline also represents the average difference between AQI measurements n hours apart.
+  
+In this particular graph, the greyscale lines represent the error for the different phases of the two-step model using different values of m for the features `loc_1_m_behind_aqi` (they use different amount of past input).
+
+XXXhypothesis3 first city graph
+
+There is a significant difference between the performance of the first and second step of the model. There doesn't appear to be a big difference in the performance for using more past data, though.
+
+This prediction was repeated for a number of other locations. This next graph was used to determine whether using more recent AQI data is useful to the model. This graph is different than the previous graph in that the x-axis represents models using m hours in the past (rather than the predictions n hours in the future). The lines worth paying attention to are the thicker ones - they represent the average across all the cities in this sample.
+
+XXX hypothesis3 all cities graph
+
+Most of the thick lines are flat. That means using the current AQI value is as useful for prediction as using the last 24 hours of AQI values (as features for the model). The blue line, which is the first-step predictions, becomes more accurate as more past AQI values are used. This is likely because the first step model is not using the date and time features to make a prediction. Also note that the one-step model (where date, time, and `loc_x_m_behind_aqi` features are inputted to a single regressor) does not perform well, validating the two-step process.
+  
+This graph seems to invalidate hypothesis 3, which is surprising. The surprising result is further explored during hyperparameter optimization (m of `loc_x_m_behind_aqi` is used as a hyperparameter to optimize). 
+
+#### Hypothesis 4 xx
+
+The AQI of nearby locations is a very good indicator of the near future AQI for a given location.
+
+[Notebook](./notebooks/hypothesis4_nearby_locations_building_model.ipynb)
+
+In exploring this hypothesis, the rest of the preprocessing steps were implemented: merging dataframes from several locations' AQI measurements and aligning locations' AQI measurements. 
+
+To explore this hypothesis, the rest of the two-step model was implemented. The first step of the model uses a MLP regressor for each location. The second step uses each location's prediction as well as the date and time features to make a prediction, whereas before, the second step used a single location's prediction. In total, x + n MLP regressors are trained and used, where x is the number of locations, and n is the number of hours ahead to make predictions. 
+
+This graph compares using different numbers of locations to make predictions on a single location's future AQI (one vs. three). The blue lines are the first step predictions using three different nearby locations recent AQI.
+
+XXX hypothesis4 graph
+
+There is no obvious difference between using one vs. three locations. This seems to invalidate the hypothesis. Again, the surprising result is further explored during hyperparameter optimization (the number of nearby locations is used as a hyperparameter to optimize).
+
+### Refinement x
 The process of improving upon the algorithms and techniques used is clearly documented. Both the initial and final solutions are reported, along with intermediate solutions, if necessary.
+
+This is the notebook for doing the hyperparameter optimization grid search: [Notebook](./notebooks/hyperparameter_optimization.ipynb)
+
+This is the notebook for the visualization of the results of some hyperparameter optimization: [Notebook](./notebooks/hyperparameter_optimization_graphs.ipynb) 
+
+The hyperparameters optimized were:
+
+* MLP regressor alpha values: `[0.001, 0.0005, 0.0001, 5e-05]`
+* MLP regressor hidden layer sizes: `[(24,), (100,), (100, 10)]`
+* `m` hrs ranges in `loc_x_m_behind_aqi`: `[range(0, 1, 1), range(0, 4, 2), range(0, 8, 2), range(0, 12, 2), range(0, 33, 2), range(0, 41, 2), range(0, 49, 2)]`
+* Number of nearby locations to use: `[1, 2, 3, 4, 5]`
+
+Indices ahead to predict range: [2, 13, 24, 35, 46]
+
+420 different combinations, will take approx 42.0 minutes.
+
 
 ## Results
 
@@ -253,28 +354,7 @@ Xavier Glorot and Yoshua Bengio. Understanding the difficulty of training deep f
 
 ## Testing Hypotheses
 
-### Hypothesis 1
 
-Time of day, day of week, day of month, and day of year are fairly strong predictors of AQI.
-
-Had to turn data into circular inputs. Interpolation >> Extrapolation, obviously. Interpolation used as sanity check.
-
-### Hypothesis 2
-
-The recent AQI of a given location is a very good indicator of the near future AQI for that location.
-
-### Hypothesis 3
-
-When combining recent AQI and time regressors to make a prediction, the number of values needed for "recent AQI" isn't worth having much more than a day.
- 
- * Build model to train against first 90% of data on both time and recent AQI
- * Combine time and recent AQI predictions with neural network
- * Try turning the time outputs into one for each, then combine with the recent AQI prediction in neural network (5 inputs total to neural network per-datetime)
- * Paramaterize how distant to look into the past and graph the means squared error of AQI (not normalized AQI)
-
-### Hypothesis 4
-
-The AQI of nearby locations is a very good indicator of the near future AQI for a given location. 
 
 
 ### Tune the predictor
