@@ -321,31 +321,63 @@ To reduce the running time of testing hyperparameters on a single location, the 
 ### Model Evaluation and Validation x
 The final model’s qualities — such as parameters — are evaluated in detail. Some type of analysis is used to validate the robustness of the model’s solution.
 
-The results of the optimal hyperparameters are as follows:
+If one set of optimal hyperparameters were to be chosen, they would be as follows:
 
 * MLP regressor alpha: 0.0005 was optimal
 * MLP regressor hidden layer size: (100, 10)
 * Hours into the recent past to use: 12.5 (`range(0, 33, 2)`)
 * Number of nearby locations to use: 5
 
+Each location had a different set for the hyperparameter combination with the lowest average absolute error. When analyzing the top 10 and top 50 hyperparameter combinations, the set above emerged as a highly performant one.
+
 A large caveat to those results is that this model is not used for the first five hours of prediction. The baseline model consistently beat all models in the hyperparameter optimization ste in the first five hours, and when comparing models that performed well in predicting the first five hours against models that performed well overall, their hyperparameters differed significantly. Given those results, an intermediate solution is to use the baseline model for the first five hours ahead of prediction. 
 
 !!!! Show top 10s and top 50s (not start or end)
 
-### Justification xx
+### Justification x
 The final results are compared to the benchmark result or threshold with some type of statistical analysis. Justification is made as to whether the final model and solution is significant enough to have adequately solved the problem.
 
+This graph shows the performance of the top 50 models by total absolute average error for a single location. Graphs for other locations look similar.
+
 !!! Show top 50s graph
+
+The top 50 models are much more performant than the baseline model, with the exception of the first five hours of prediction where the baseline outperforms the other models by two to five AQI units. The difference in performance between those 50 models would be inconsequential to an end user viewing pollution predictions because the average difference in performance for a given measurement is approximately two or three AQI units.  
 
 ## Conclusion
 
 ### Free-form Visualization xx
 A visualization has been provided that emphasizes an important quality about the project with thorough discussion. Visual cues are clearly defined.
 
-!!! Show top 50s start and end
+The final model structure was very performant, but it didn't work exceptionally well for predictions in the first five hours or so. These next few graphs explore the differences in hyperparameters between models that best predicted four hours ahead vs. twenty four hours ahead: 
 
-### Reflection xx
+These two graphs compare the number of hours behind of input used to make predictions. The first graph is the top performing models at predicting four hours ahead. The second graph is the top performing models at predicting twenty four hours ahaed.
+
+!!! Show top 50s start and end indices behind to use range
+
+All the highest performing models predicting four hours ahead used just the current AQI value, while there was more distributed performance for predicting twenty four hours ahead. This stark difference indicates that the structure of the final model is unsuitable for predicting the first five or so hours ahead. This is because the first graph suggests that trends in the recent past, when combined with time inputs, have no predictive power for the immediate future, but have predictive power just beyond the immediate future. This is not an intuitive conclusion.
+
+These two graphs compare the hidden layer sizes on the MLP regressors used to make predictions (in a fashion similar to the previous graphs).
+
+!!! Show top 50s start and end hidden layer sizes
+
+<talk about how it means we have to have different regressors for both>
+
+<talk about how number of locations and MLP alpha values these ones are definite/consistent>
+
+### Reflection x
 Student adequately summarizes the end-to-end problem solution and discusses one or two particular aspects of the project they found interesting or difficult.
+
+The way the problem was ultimately solved was:
+
+1. I thought deeply about how to model the predictor, until I decided on a model structure.
+2. I expressed the hypotheses I had, which caused me to choose this model structure. If any of the hypotheses were proven invalid, I would have changed the structure of the model.
+3. I explored the data and validated hypotheses while slowly building up the structure of the model.
+4. I performed some hyperparameter optimization.
+5. I analysed the results to choose a "best solution".
+
+Getting all the data on one dataframe row necessary to train the model required about a third of the effort required to complete the project. Much of this time was spent exploring the intracacies of Pandas, but it was also an algorithmically complex problem to align and move so much data between rows.
+
+Arriving at the model with two-steps of neural networks was interesting. Given the input data, it was worthwhile to imagine the different ways to structure a predictive model. Having a set of hypotheses that needed to be proven to validate the structure of the model was the foundation set early on in the project. Attempting to validate each hypothesis while building the model was a valuable and productive exercise.   
 
 ### Improvement x
 Discussion is made as to how one aspect of the implementation could be improved. Potential solutions resulting from these improvements are considered and compared/contrasted to the current solution.
@@ -358,6 +390,7 @@ The problem was a difficult one to solve for the scope of this project. There ar
 * Try with at least two years of data
 
 A more interesting improvement that would make the model more relevant in a production environment would be to test the model in a way where it is progressively tested with more and more data rather than once with all the data. The way this model would be used in reality is that every few hours or days, it would be retrained for each location with the newly collected data since it was last trained. This is much different than the conditions under which the final model was produced. In order to make the model perform better in its actual use case, it should be tested by gradually adding more data to the training set over time, generating several test/training splits with which to optimize the model.
+
 
 ## References xx
 
