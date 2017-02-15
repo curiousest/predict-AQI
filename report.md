@@ -284,7 +284,7 @@ Most of the thick lines are flat. That means using the current AQI value is as u
   
 This graph seems to invalidate hypothesis 3, which is surprising. The surprising result is further explored during hyperparameter optimization (m of `loc_x_m_behind_aqi` is used as a hyperparameter to optimize). 
 
-#### Hypothesis 4 xx
+#### Hypothesis 4 x
 
 The AQI of nearby locations is a very good indicator of the near future AQI for a given location.
 
@@ -303,9 +303,9 @@ There is no obvious difference between using one vs. three locations. This seems
 ### Refinement x
 The process of improving upon the algorithms and techniques used is clearly documented. Both the initial and final solutions are reported, along with intermediate solutions, if necessary.
 
-This is the notebook for doing the hyperparameter optimization grid search: [Notebook](./notebooks/hyperparameter_optimization.ipynb)
+[This is the notebook](./notebooks/hyperparameter_optimization.ipynb) for doing the hyperparameter optimization grid search. 
 
-This is the notebook for the visualization of the results of some hyperparameter optimization: [Notebook](./notebooks/hyperparameter_optimization_graphs.ipynb) 
+[This is the notebook](./notebooks/hyperparameter_optimization_graphs.ipynb)  for the visualization of the results of some hyperparameter optimization.
 
 The hyperparameters optimized were:
 
@@ -314,23 +314,35 @@ The hyperparameters optimized were:
 * `m` hrs ranges in `loc_x_m_behind_aqi`: `[range(0, 1, 1), range(0, 4, 2), range(0, 8, 2), range(0, 12, 2), range(0, 33, 2), range(0, 41, 2), range(0, 49, 2)]`
 * Number of nearby locations to use: `[1, 2, 3, 4, 5]`
 
-Indices ahead to predict range: [2, 13, 24, 35, 46]
-
-420 different combinations, will take approx 42.0 minutes.
-
+To reduce the running time of testing hyperparameters on a single location, the following hours ahead were predicted for each model: `[1, 6.5, 12, 17.5, 23]`. Testing the 420 combinations of hyperparameters for a single location took approximately 40 minutes on my computer. Hyperparameter optimization was performed on eight locations, and the results were conclusive enough to not warrant more runs. 
 
 ## Results
 
-### Model Evaluation and Validation xx
+### Model Evaluation and Validation x
 The final model’s qualities — such as parameters — are evaluated in detail. Some type of analysis is used to validate the robustness of the model’s solution.
+
+The results of the optimal hyperparameters are as follows:
+
+* MLP regressor alpha: 0.0005 was optimal
+* MLP regressor hidden layer size: (100, 10)
+* Hours into the recent past to use: 12.5 (`range(0, 33, 2)`)
+* Number of nearby locations to use: 5
+
+A large caveat to those results is that this model is not used for the first five hours of prediction. The baseline model consistently beat all models in the hyperparameter optimization ste in the first five hours, and when comparing models that performed well in predicting the first five hours against models that performed well overall, their hyperparameters differed significantly. Given those results, an intermediate solution is to use the baseline model for the first five hours ahead of prediction. 
+
+!!!! Show top 10s and top 50s (not start or end)
 
 ### Justification xx
 The final results are compared to the benchmark result or threshold with some type of statistical analysis. Justification is made as to whether the final model and solution is significant enough to have adequately solved the problem.
+
+!!! Show top 50s graph
 
 ## Conclusion
 
 ### Free-form Visualization xx
 A visualization has been provided that emphasizes an important quality about the project with thorough discussion. Visual cues are clearly defined.
+
+!!! Show top 50s start and end
 
 ### Reflection xx
 Student adequately summarizes the end-to-end problem solution and discusses one or two particular aspects of the project they found interesting or difficult.
