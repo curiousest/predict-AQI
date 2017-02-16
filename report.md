@@ -104,13 +104,16 @@ This is an example of a single location's air pollution measurements over time.
 * The green dots are simple linear regression, trained on the first 80% of the dataset, using the date+time as the only input
 
 For the whole year:
-XXXhypothesis1
+
+![One location one year](images/one_location_one_year.png)
 
 For November:
-XXXhypothesis1
+
+![One location one month](images/one_location_one_month.png)
 
 For four days in November:
-XXXhypothesis1
+
+![One location four days](images/one_location_four_days.png)
 
 There are two places in the year-long graph where there is obviously something wrong with the data. Here is a sample from that period:
 
@@ -233,10 +236,11 @@ A single location's AQI data was visualized and had a basic linear regressor app
 * The green dots are simple linear regression, trained on the first 80% of the dataset, using the date+time as the only input
 
 For the whole year:
-XXXhypothesis1
+
+![One location one year](images/one_location_one_year.png)
 
 For November:
-XXXhypothesis1
+![One location one month](images/one_location_one_month.png)
 
 As expected, the regressor made cyclical predictions that had obvious periods of one day. There seemed a cycle with period of one year, and the monthly / weekly cycles were less obvious. Although far from a rigorous validation of the hypothesis, these visual results vaguely suggest at the validity of the hypothesis. It was more valuable to move on to further hypotheses than to dive into more rigour at this point.
 
@@ -252,7 +256,7 @@ To explore this hypothesis, a MLP regressor was trained using the `loc_x_m_behin
  
 This graph shows a few days of the model's predictions. At any given location on the x-axis, the y-axis values are the model's predictions if it was predicting n hours ago. 
 
-XXX4-days-graph-hypothesis2
+![One location four days prediction](images/one_location_four_days_predictions.png)
 
 The predictions seem reasonable. Note that the predictions from further in the past are closer to the recent average than predictions from the near past. This is another positive indication that the predictor is making reasonable predictions.
  
@@ -272,13 +276,13 @@ These are the results for all the predictions on a single location. This kind of
   
 In this particular graph, the greyscale lines represent the error for the different phases of the two-step model using different values of m for the features `loc_1_m_behind_aqi` (they use different amount of past input).
 
-XXXhypothesis3 first city graph
+![One location error for history depth](images/error_one_location_history_depth.png)
 
 There is a significant difference between the performance of the first and second step of the model. There doesn't appear to be a big difference in the performance for using more past data, though.
 
 This prediction was repeated for a number of other locations. This next graph was used to determine whether using more recent AQI data is useful to the model. This graph is different than the previous graph in that the x-axis represents models using m hours in the past (rather than the predictions n hours in the future). The lines worth paying attention to are the thicker ones - they represent the average across all the cities in this sample.
 
-XXX hypothesis3 all cities graph
+![Total error for different amounts of input](images/input_error_multi_city.png)
 
 Most of the thick lines are flat. That means using the current AQI value is as useful for prediction as using the last 24 hours of AQI values (as features for the model). The blue line, which is the first-step predictions, becomes more accurate as more past AQI values are used. This is likely because the first step model is not using the date and time features to make a prediction. Also note that the one-step model (where date, time, and `loc_x_m_behind_aqi` features are inputted to a single regressor) does not perform well, validating the two-step process.
   
@@ -296,7 +300,7 @@ To explore this hypothesis, the rest of the two-step model was implemented. The 
 
 This graph compares using different numbers of locations to make predictions on a single location's future AQI (one vs. three). The blue lines are the first step predictions using three different nearby locations recent AQI.
 
-XXX hypothesis4 graph
+![One location error for different numbers of locations](images/error_three_locations.png)
 
 There is no obvious difference between using one vs. three locations. This seems to invalidate the hypothesis. Again, the surprising result is further explored during hyperparameter optimization (the number of nearby locations is used as a hyperparameter to optimize).
 
@@ -332,14 +336,28 @@ Each location had a different set for the hyperparameter combination with the lo
 
 A large caveat to those results is that this model is not used for the first five hours of prediction. The baseline model consistently beat all models in the hyperparameter optimization ste in the first five hours, and when comparing models that performed well in predicting the first five hours against models that performed well overall, their hyperparameters differed significantly. Given those results, an intermediate solution is to use the baseline model for the first five hours ahead of prediction. 
 
-!!!! Show top 10s and top 50s (not start or end)
+![Top 10 indices behind to use](images/top_10_indices_behind.png)
+
+![Top 50 indices behind to use](images/top_50_indices_behind.png)
+
+![Top 10 # locations](images/top_10_locations.png)
+
+![Top 50 # locations](images/top_50_locations.png)
+
+![Top 10 hidden layers](images/top_10_hidden_layers.png)
+
+![Top 50 hidden layers](images/top_50_hidden_layers.png)
+
+![Top 10 alpha](images/top_10_alpha.png)
+
+![Top 50 alpha](images/top_50_alpha.png)
 
 ### Justification x
 The final results are compared to the benchmark result or threshold with some type of statistical analysis. Justification is made as to whether the final model and solution is significant enough to have adequately solved the problem.
 
 This graph shows the performance of the top 50 models by total absolute average error for a single location. Graphs for other locations look similar.
 
-!!! Show top 50s graph
+![Error on top 50 models](images/error_top_50s.png)
 
 The top 50 models are much more performant than the baseline model, with the exception of the first five hours of prediction where the baseline outperforms the other models by two to five AQI units. The difference in performance between those 50 models would be inconsequential to an end user viewing pollution predictions because the average difference in performance for a given measurement is approximately two or three AQI units.  
 
@@ -352,13 +370,17 @@ The final model structure was very performant, but it didn't work exceptionally 
 
 These two graphs compare the number of hours behind of input used to make predictions. The first graph is the top performing models at predicting four hours ahead. The second graph is the top performing models at predicting twenty four hours ahaed.
 
-!!! Show top 50s start and end indices behind to use range
+![Top 50 indices behind to use start](images/top_10_indices_behind_start.png)
+
+![Top 50 indices behind to use end](images/top_50_indices_behind_end.png)
 
 All the highest performing models predicting four hours ahead used just the current AQI value, while there was more distributed performance for predicting twenty four hours ahead. This stark difference indicates that the structure of the final model is unsuitable for predicting the first five or so hours ahead. This is because the first graph suggests that trends in the recent past, when combined with time inputs, have no predictive power for the immediate future, but have predictive power just beyond the immediate future. This is not an intuitive conclusion.
 
 These two graphs compare the hidden layer sizes on the MLP regressors used to make predictions (in a fashion similar to the previous graphs).
 
-!!! Show top 50s start and end hidden layer sizes
+![Top 50 hidden layers to use start](images/top_10_hidden_layers_start.png)
+
+![Top 50 hidden laters to use end](images/top_50_hidden_layers_end.png)
 
 <talk about how it means we have to have different regressors for both>
 
