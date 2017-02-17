@@ -1,16 +1,5 @@
 # predict-AQI
 
-Work in progress
-
-- [x] Project proposal
-- [x] Load & clean data
-- [x] Explore Hypothesis # 1
-- [x] Explore Hypothesis # 2
-- [x] Explore Hypothesis # 3
-- [x] Explore Hypothesis # 4
-- [x] Produce final model & gather results
-- [ ] Finish report
-
 ## Project Proposal
 
 [Detailed proposal](./proposal.md)
@@ -40,13 +29,15 @@ The final model ended up being structured like this:
 
 Exploring these hypotheses gradually built up preprocessing, a pipeline, and a model. In the end, a hyperparameter grid search was performed and compared against the baseline model.
 
-[Model Visualizations](./notebooks/final_model.ipynb)
+[Model Visualizations](./predict_aqi/notebooks/final_model.ipynb)
 
-No one set of hyperparameters for the model was optimal across all locations.
+No one set of hyperparameters for the model was optimal across all locations. That being said, different hyperparameters for the model performed better than the baseline model.
 
-<insert top x model graphs>
+These are the results for 50 different sets of hyperparameters on a single location compared to the baseline model. The x-axis represents predictions n hours in the future. The y-axis represents the average absolute error for the predictor. That means a single point is the average absolute error for a given predictor predicting n hours ahead for a given location. Note that the baseline model error (red line) will always start low, quickly increase in error, then taper off. This is because in this kind of graph, the error of the baseline model also happens to be the average difference between AQI measurements n hours apart (where n is the x-axis value).
 
-Small improvements to the model and some changes to the testing process would be necessary to make the model production-ready (improvements link).
+![Error on top 50 models](images/error_top_50s.png)
+
+Small improvements to the model and some changes to the testing process would be necessary to make the model production-ready (see [improvements](./report.md#improvement)).
 
 ## Setup to Reproduce
 

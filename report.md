@@ -1,7 +1,6 @@
 ## Definition
 
 ### Project Overview
-Student provides a high-level overview of the project in layman’s terms. Background information such as the problem domain, the project origin, and related data sets or input data is given.
 
 Air pollution was linked to 7 million premature deaths in 2012 [[1]](References) (~55 million people died in total in 2012 [[2]](References)). Using pollution masks when air pollution is bad can reduce premature deaths linked to air pollution. There are many consumer applications and services that broadcast what the air pollution is and has been, but there are very few that predict what air pollution will be. Similar to weather, individuals care more about air pollution in the near future, so they can make decisions about their day/week.
 
@@ -30,7 +29,7 @@ Used to predict the following output:
 
 * An AQI prediction for every hour over the next 24 hours
 
-The model I expect to build will look like the following:
+The machine learning model structure for a solution to this problem is as follows:
 
 ![original model](images/original_model.png)
 
@@ -172,7 +171,7 @@ Multi-layer perceptron regressors were chosen because of their flexibility and b
 The choice of using several multi-layer perceptron regressors as well as layering them was made because:
 
 * The n-hours-in-the-past AQI features are closely related for a given location, and seperate from those of another location
-* If all possible n-hours-in-the-past features were used with a single regressor, there could be 240 (48 into the past x 5 location) n-hours-in-the-past AQI features. Using a single regressor with all inputs was tried and it was much less performant [see hypothesis 3](Hypothesis-3).
+* If all possible n-hours-in-the-past features were used with a single regressor, there could be 240 (48 into the past x 5 location) n-hours-in-the-past AQI features. Using a single regressor with all inputs was tried and it was much less performant [see hypothesis 3](./report.md#hypothesis-3).
 
 ### Benchmark
 
