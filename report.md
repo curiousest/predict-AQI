@@ -318,7 +318,7 @@ The hyperparameters optimized were:
 * `m` hrs ranges in `loc_x_m_behind_aqi`: `[range(0, 1, 1), range(0, 4, 2), range(0, 8, 2), range(0, 12, 2), range(0, 33, 2), range(0, 41, 2), range(0, 49, 2)]`
 * Number of nearby locations to use: `[1, 2, 3, 4, 5]`
 
-To reduce the running time of testing hyperparameters on a single location, the following hours ahead were predicted for each model: `[1, 6.5, 12, 17.5, 23]`. Testing the 420 combinations of hyperparameters for a single location took approximately 40 minutes on my computer. Hyperparameter optimization was performed on eight locations, and the results were conclusive enough to not warrant more runs. 
+In total, 420 two-step models were evaluated for each location the hyperparameter optimization was performed on. To reduce the running time of testing hyperparameters on a single location, the following hours ahead were predicted for each model: `[1, 6.5, 12, 17.5, 23]`. Testing the 420 combinations of hyperparameters for a single location took approximately 40 minutes on my computer. Hyperparameter optimization was performed on eight locations, and the results were conclusive enough to not warrant more runs. 
 
 ## Results
 
@@ -370,7 +370,7 @@ The final model structure was very performant, but it didn't work exceptionally 
 
 These two graphs compare the number of hours behind of input used to make predictions. The first graph is the top performing models at predicting four hours ahead. The second graph is the top performing models at predicting twenty four hours ahaed.
 
-![Top 50 indices behind to use start](images/top_10_indices_behind_start.png)
+![Top 50 indices behind to use start](images/top_50_indices_behind_start.png)
 
 ![Top 50 indices behind to use end](images/top_50_indices_behind_end.png)
 
@@ -378,9 +378,9 @@ All the highest performing models predicting four hours ahead used just the curr
 
 These two graphs compare the hidden layer sizes on the MLP regressors used to make predictions (in a fashion similar to the previous graphs).
 
-![Top 50 hidden layers to use start](images/top_10_hidden_layers_start.png)
+![Top 50 hidden layers to use start](images/top_50_hidden_layers_start.png)
 
-![Top 50 hidden laters to use end](images/top_50_hidden_layers_end.png)
+![Top 50 hidden layers to use end](images/top_50_hidden_layers_end.png)
 
 <talk about how it means we have to have different regressors for both>
 
@@ -417,72 +417,3 @@ A more interesting improvement that would make the model more relevant in a prod
 ## References xx
 
 Xavier Glorot and Yoshua Bengio. Understanding the difficulty of training deep feedforward neural networks. Proceedings of the 13th International Conference on Artificial Intelligence and Statistics, 9:249– 256, 2010
-
-
-## Testing Hypotheses
-
-
-
-
-### Tune the predictor
-
- * Try on different cities
- * Do the multi-step testing (train on 1st month, predict second; train on 1-2mo test on 3rd; train on 1-3mo test on 4th, etc.)
- * Find how far to look into the past for nearby cities
- * Different regressor for time predictor
- * Recurrent neural networks instead of normal for recent AQI
- * 
- * Clean the data better? (use actual 30 min intervals)
-
-## Notes
-
-### Problem Statement
-
- * Dataset is actually ~5gB, not 16gB
- * Lots of the data is just null values
- * Benchmark model is actually predicting the same AQI for the next 24 hours
- * The data isn't in perfect 30min intervals
-
-### Solution Statement
-
-For a given city at a given point in time, the model will use the inputs:
-
-* The recent AQI history of the location (on the order of 1 to 10 days)
-
-* The location’s latitude and longitude
-
-* The recent AQI history of other locations (and their latitudes/longitudes)
-
-* The current date and time
-
-* The long-term AQI history of the location (possibly)
-
-To produce the output:
-
-* An AQI prediction for every hour over the next 24 hours for this location (required)
-
-* An AQI prediction for every hour over the next week (less important, nice-to-have)
-
-To train, the model will perform the following preprocessing:
-
-* Scale the AQI numbers from 0 to 1 - this will require exploring the larger AQI number in the dataset to find an upper-bound number that enables high accuracy without excluding high-AQI predictions
-
-* Convert the latitudes and longitudes of nearby cities into the distance from the target city’s latitude and longitude, so the distance can be used as a way to scale the importance of each location’s recent AQI history. The distances will be scaled to be within 0-1, where 1 is the largest distance between "nearby cities" used in the model
-
-* Change the current date and time into:
-
-    * The current hour of day
-
-    * The current day of week
-
-    * The current day of month
-
-    * The current day of year
-
-* For all AQI numbers that are invalid (described in Dataset and Inputs), treat them as if their value is the last valid AQI number for the city, but don’t learn or train on them (they should not be used as a target AQI to guess)
-
-Then the model will split the data into a test/training set (see Evaluation Metrics). Finally, the model will train on the training set:
-
-1. Train recurrent neural networks for each location.
-
-2. Train neural network combining nearby locations’ prediction data with current date and time for each location.

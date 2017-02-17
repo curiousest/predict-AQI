@@ -50,7 +50,7 @@ Small improvements to the model and some changes to the testing process would be
 
 ## Setup to Reproduce
 
-Either use this docker setup for postgres / jupyter notebook or use your own setup of postgres / jupyter notebook and change the database config in `load_data.py`.
+Either use this docker setup for postgres / jupyter notebook or use your own setup of postgres / jupyter notebook and change the database config in `predict_aqi/load_data.py, line 7`.
 
 * Install docker and docker-compose (this can be non-trivial, especially for mac/windows):
   * https://docs.docker.com/engine/installation/
@@ -64,13 +64,8 @@ $ docker-compose up -d
 Starting predictaqi_postgis_1
 Starting predictaqi_notebook_1
 ```
-* Download the data set
-  * *** LINK TO DATA SET ***
-* Load the database from the dump file to the postgres db:
-```
-commands to do that
-```
-* Use an existing notebook, (***insert final model notebook here***) recommended
+* (For results of hyperparameter optimization) Download the results .csv files and put it in `predict_aqi/results_data/`: https://www.dropbox.com/sh/8vhx47k2xogtgct/AACL4eLQiB3cw7kezry3-fdSa?dl=0
+* For the entire dataset (for postgres), download this xGB .zip file: 
 
 ## Libraries Used
 
