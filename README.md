@@ -58,8 +58,8 @@ Starting predictaqi_notebook_1
 
 ### Retrieving the data
 
-* (For results of hyperparameter optimization) Download the results .csv files and put it in `predict_aqi/results_data/`: https://www.dropbox.com/sh/8vhx47k2xogtgct/AACL4eLQiB3cw7kezry3-fdSa?dl=0
-* For a third of the entire dataset, download this 1.8GB .sql file (for postgres): 
+* For results of hyperparameter optimization, download the results .csv files and put it in `predict_aqi/results_data/`: https://www.dropbox.com/sh/8vhx47k2xogtgct/AACL4eLQiB3cw7kezry3-fdSa?dl=0
+* For a third of the entire dataset, download this 1.8GB .sql file (for postgres): https://dl.dropboxusercontent.com/u/22651169/half_data_dump.sql
 
 ## Libraries Used
 
