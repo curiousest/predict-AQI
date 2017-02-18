@@ -166,8 +166,6 @@ def make_circular_input(input, input_max, input_min=0):
 
 #### Choice of Regressor
 
-Convolutional neural networks might be a good choice for this problem because it has some time-series features (uses n-hours-in-the-past AQI features, for x ϵ 1..24). However, convolutional neural networks are difficult to tune and out of the scope of this project [xxx].
-
 Multi-layer perceptron regressors were chosen because of their flexibility and because they are well-suited to approximating the extremely complex real-world events that cause a pollution measurement to change over time. Also, there is enough data that they will be useful (on the order of 30k rows of usable data per location). 
 
 The choice of using several multi-layer perceptron regressors as well as layering them was made because:
@@ -426,4 +424,6 @@ A more interesting improvement that would make the model more relevant in a prod
 
 ## References
 
-Xavier Glorot and Yoshua Bengio. Understanding the difficulty of training deep feedforward neural networks. Proceedings of the 13th International Conference on Artificial Intelligence and Statistics, 9:249– 256, 2010
+[1] World Health Organization, March 2014, 7 million premature deaths annually linked to air pollution, http://www.who.int/mediacentre/news/releases/2014/air-pollution/en/
+
+[2] The World Bank, October 2016, Death rate, crude (per 1,000 people), http://data.worldbank.org/indicator/SP.DYN.CDRT.IN
