@@ -6,6 +6,8 @@ Air pollution was linked to 7 million premature deaths in 2012 [[1]](References)
 
 AQI (Air quality index) is a measurement that is commonly used to indicate air pollution. The number represents the greatest concentration (on a non-linear scale) of one of several types of harmful particles in the air. aqicn.org is a website that reports AQI in different locations around the world, and is used as a data source for this project.
 
+Note for reviewer: [Proposal review](https://review.udacity.com/#!/reviews/267521)
+
 ### Problem Statement
 
 For a given location at a given point in time, what will the air pollution be for the next 24 hours?

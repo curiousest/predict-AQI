@@ -10,8 +10,6 @@ For a given location at a given point in time, what will the air pollution be ev
 
 The baseline model to beat is one that predicts that the AQI for the next 24 hours will be the same AQI as right now.
 
-Note for reviewer: [Proposal review](https://review.udacity.com/#!/reviews/267521)
-
 ## Project Report
 
 [Detailed report](./report.md)
@@ -33,7 +31,7 @@ Exploring these hypotheses gradually built up preprocessing, a pipeline, and a m
 
 No one set of hyperparameters for the model was optimal across all locations. That being said, different hyperparameters for the model performed better than the baseline model.
 
-These are the results for 50 different sets of hyperparameters on a single location compared to the baseline model. The x-axis represents predictions n hours in the future. The y-axis represents the average absolute error for the predictor. That means a single point is the average absolute error for a given predictor predicting n hours ahead for a given location. Note that the baseline model error (red line) will always start low, quickly increase in error, then taper off. This is because in this kind of graph, the error of the baseline model also happens to be the average difference between AQI measurements n hours apart (where n is the x-axis value).
+These are the results for 50 different sets of hyperparameters on a single location compared to the baseline model. The x-axis represents predictions n hours in the future. The y-axis represents the average absolute error for the predictor. That means a single point is the average absolute error for a given predictor predicting n hours ahead for a given location. The red line is the baseline model error.
 
 ![Error on top 50 models](images/error_top_50s.png)
 
