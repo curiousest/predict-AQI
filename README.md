@@ -12,9 +12,7 @@ The baseline model to beat is one that predicts that the AQI for the next 24 hou
 
 ## Project Report
 
-[Detailed report](./report.md)
-
-[pdf](./images/report.pdf)
+[Detailed report.](./report.md) ([printscreened pdf](./images/report.pdf))
 
 Four hypotheses were explored:
 
