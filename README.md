@@ -14,6 +14,8 @@ The baseline model to beat is one that predicts that the AQI for the next 24 hou
 
 [Detailed report](./report.md)
 
+[pdf](./images/report.pdf)
+
 Four hypotheses were explored:
 
 * [Time of day, day of week, day of month, and day of year can produce fairly accurate AQI predictions.](./predict_aqi/notebooks/hypothesis1_date_time.ipynb)
