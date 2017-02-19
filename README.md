@@ -1,5 +1,7 @@
 # predict-AQI
 
+Predicting air pollution.
+
 ## Project Proposal
 
 [Detailed proposal](./proposal.md)
