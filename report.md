@@ -6,6 +6,10 @@ Air pollution was linked to 7 million premature deaths in 2012 [[1]](References)
 
 AQI (Air quality index) is a measurement that is commonly used to indicate air pollution. The number represents the greatest concentration (on a non-linear scale) of one of several types of harmful particles in the air. aqicn.org is a website that reports AQI in different locations around the world, and is used as a data source for this project.
 
+Air pollution predictions, like weather predictions, are useful to consumers to plan the near future. Someone living in a variably polluted city will make decisions in everyday life depending on the current and future air pollution levels.
+
+In literature, air pollution prediction models, similar to weather prediction, often use meteorological data such as temperature, humidity, rainfall, wind direction, wind speed, and precipitation [[3]](References). Air pollution prediction models using meteorological data can use support vector machines and artificial neural networks [[3]](References) [[4]](References). In this project, I will be using previous pollution measurements and no meteorological data to build a predictive model.   
+
 Note for reviewer: [Proposal review](https://review.udacity.com/#!/reviews/267521)
 
 ### Problem Statement
@@ -163,7 +167,6 @@ def make_circular_input(input, input_max, input_min=0):
     return sine, cosine
 ```
 
-
 #### Choice of Regressor
 
 Multi-layer perceptron regressors were chosen because of their flexibility and because they are well-suited to approximating the extremely complex real-world events that cause a pollution measurement to change over time. Also, there is enough data that they will be useful (on the order of 30k rows of usable data per location). 
@@ -172,6 +175,12 @@ The choice of using several multi-layer perceptron regressors as well as layerin
 
 * The n-hours-in-the-past AQI features are closely related for a given location, and seperate from those of another location
 * If all possible n-hours-in-the-past features were used with a single regressor, there could be 240 (48 into the past x 5 location) n-hours-in-the-past AQI features. Using a single regressor with all inputs was tried and it was much less performant [see hypothesis 3](./report.md#hypothesis-3).
+
+#### Model Structure
+
+The first layer of the model uses a supervised multi-layer perceptron (MLP) algorithm for each location. The algorithm uses the n integer AQI inputs into the past, and for each neuron in the hidden layers, transforms the values from the previous layer to generate a value. The transformation function is learned by each neuron by back-propogating the error on each training sample output of the 24 hours of output. The structure of the hidden layers is an input to the algorithm, as well as some parameters about how quickly and under what initial conditions the neurons learn. It's important to note that the neural network isn't implicitly structured to handle time-series data - the algorithm would treat inputs `one hour ago AQI` the same as `current millisecond of second`, but learns the utility of each input, and is able to learn that trends along the time series `n hours ago AQI` impact outputs, but it's not guaranteed to learn or part of the explicit structure of the algoritm. Other types of predictive models structurally support time series data, but are out of scope of this project (recurrant neural networks).
+
+The second layer of the model also uses a supervised MLP algorithm. Other algorithms could have been used for this layer, but MLP is flexible enough and chosen for convenience (since the first layer was also using one). One MLP regressor was used for every hour ahead to be predicted (predicting one `m hours ahead` value) because the behaviour of a model that predicts one hour ahead is likely much different than one that predict 24 hours ahead. The inputs for a single MLP regressor on this layer are the circular time inputs as well as each nearby location's first layer prediction for this `m hours ahead` corresponding to this `m hours ahead` MLP regresor.
 
 ### Benchmark
 
@@ -245,6 +254,11 @@ For November:
 
 As expected, the regressor made cyclical predictions that had obvious periods of one day. There also seemed to be a cycle with period of one year, and the monthly / weekly cycles were less obvious. Although far from a rigorous validation of the hypothesis, these visual results vaguely suggest at the validity of the hypothesis. It was more valuable to move on to further hypotheses than to dive into more rigour at this point.
 
+Complications faced at this step were:
+
+* Initially visualizing the data with matplotlib and its pandas integration - the difference between the figure, axis, and plot objects, and how they interact in a jupyter notebook with the pandas integration is non-trivial.
+* Difficulty visualizing model error in a meaningful way (foreshadowing future hardship)
+
 #### Hypothesis 2
 
 *The recent AQI of a given location is a very good indicator of the near future AQI for that location.*
@@ -262,6 +276,11 @@ This graph shows a few days of the model's predictions. At any given location on
 The predictions seem reasonable. Note that the predictions from further in the past are closer to the recent average than predictions from the near past. This is another positive indication that the predictor is making reasonable predictions.
  
 Since the model seemed reasonable, it was more valuable to move onto further hypotheses. Again, this wasn't a rigorous validation of the hypothesis, especially because it wasn't comparing the model to the baseline model.
+
+Complications faced at this step were:
+
+* Visualizing predictions - for any one point in time (on the time (x) axis), a single model makes 24 predictions for future time values. It's difficult to visualize the predictions for a single model on one graph and very difficult to compare predictions of different models.
+* Preprocessing data to get `n hours in the past AQI` and `m hours in the future AQI` on one single dataframe row for every row - pandas isn't really designed to perform inter-row operations, understandably.
 
 #### Hypothesis 3
 
@@ -287,7 +306,14 @@ This prediction was repeated for a number of other locations. This next graph wa
 
 Most of the thick lines are flat. That means using the current AQI value is as useful for prediction as using the last 24 hours of AQI values (as features for the model). The blue line, which is the first-step predictions, becomes more accurate as more past AQI values are used. This is likely because the first step model is not using the date and time features to make a prediction. Also note that the one-step model (where date, time, and `loc_x_m_behind_aqi` features are inputted to a single regressor) does not perform well, validating the two-step process.
   
-This graph seems to invalidate hypothesis 3, which is surprising. The surprising result is further explored during hyperparameter optimization (m of `loc_x_m_behind_aqi` is used as a hyperparameter to optimize). 
+This graph seems to invalidate hypothesis 3, which is surprising. The surprising result is further explored during hyperparameter optimization (m of `loc_x_m_behind_aqi` is used as a hyperparameter to optimize).
+
+Complications faced at this step were:
+
+* The hypothesis appeared incorrect - the temporary solution was not to believe the results, and wait for more comprehensive results from hyperparameter optimization.
+* Building the two-step model - the architecture necessary to make one the results of one regressor to be inputs to another, as well as training several regressors with different input and output parameters is non-trivial. 
+* Filtering out invalid data without causing invalid inputs to the model - since the input data is a time series, a single invalid AQI value causes several rows before and after to be invalid, since values ahead are used to train against, and values behind are used as inputs.
+* Visualizing error - like visualizing predictions, visualizing errors was difficult because a single predictive model could have different error for each of its 24 predictions in the future. It was important to differentiate and visualize each of those prediction errors.
 
 #### Hypothesis 4
 
@@ -304,6 +330,11 @@ This graph compares using different numbers of locations to make predictions on 
 ![One location error for different numbers of locations](images/error_three_locations.png)
 
 There is no obvious difference between using one vs. three locations. This seems to invalidate the hypothesis. Again, the surprising result is further explored during hyperparameter optimization (the number of nearby locations is used as a hyperparameter to optimize).
+
+Complications faced at this step were:
+
+* Aligning the time series data for multiple locations - this was an algorithmically and computationally intense problem, especially with the additional confounding issue of invalid data. The solution chosen was far from optimal, but the first working one.
+* The hypothesis appeared incorrect - the temporary solution was not to believe the results, and wait for more comprehensive results from hyperparameter optimization.
 
 ### Refinement
 
@@ -427,3 +458,7 @@ A more interesting improvement that would make the model more relevant in a prod
 [1] World Health Organization, March 2014, 7 million premature deaths annually linked to air pollution, http://www.who.int/mediacentre/news/releases/2014/air-pollution/en/
 
 [2] The World Bank, October 2016, Death rate, crude (per 1,000 people), http://data.worldbank.org/indicator/SP.DYN.CDRT.IN
+
+[3] Chi-Man Vong, Weng-Fai Ip, Pak-kin Wong, and Jing-yi Yang, 2012, Short-Term Prediction of Air Pollution in Macau Using Support Vector Machines, https://www.hindawi.com/journals/jcse/2012/518032/
+
+[4] W.Z. Lu, H.Y. Fan, A.Y.T. Leung, J.C.K. Wong, 2002, Analysis of Pollutant Levels in Central Hong Kong Applying Neural Network Method with Particle Swarm Optimization, http://link.springer.com/article/10.1023%2FA%3A1020274409612
